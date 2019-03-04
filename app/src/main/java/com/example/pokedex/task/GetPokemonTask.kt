@@ -14,7 +14,13 @@ import java.lang.ref.WeakReference
 import java.net.URL
 
 class GetPokemonTask(val firstPokemonId: Int, val lastPokemonId: Int, val model: PokemonListViewModel, val loadingScreen: WeakReference<ConstraintLayout>) : AsyncTask<Void, Void, List<Pokemon>>() {
+    companion object {
+        var isLoading = false
+    }
+
     override fun doInBackground(vararg params: Void?): List<Pokemon> {
+        isLoading = true
+
         val pokemonList = mutableListOf<Pokemon>()
         for (id in firstPokemonId..lastPokemonId) {
             val pkmnService = ApiUtil.retrofit.create(PokemonService::class.java)
@@ -47,6 +53,8 @@ class GetPokemonTask(val firstPokemonId: Int, val lastPokemonId: Int, val model:
 
             loadingScreen.get()?.visibility = View.INVISIBLE
         }
+
+        isLoading = false
     }
 
     private fun getDrawableFromURL(url: String): Drawable? {

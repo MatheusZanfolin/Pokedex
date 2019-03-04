@@ -18,7 +18,7 @@ import com.example.pokedex.viewmodel.PokemonListViewModel
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
-    val POKEMONS_BY_QUERY = 3
+    val POKEMONS_BY_QUERY = 2
     val INITIAL_POKEMON_COUNT = 10
 
     val LAST_POKEMON_ID = 807
@@ -41,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         setUpViewModel()
 
         setUpList()
+
+        loadMoreItems()
     }
 
     private fun setUpViewModel() {
@@ -64,14 +66,24 @@ class MainActivity : AppCompatActivity() {
         getPokemonsUntil(INITIAL_POKEMON_COUNT)
     }
 
+    private fun loadMoreItems() {
+        Thread {
+            while (nextPokemonIdToGet <= 807) {
+                do { } while (GetPokemonTask.isLoading)
+
+                getPokemonsUntil(nextPokemonIdToGet + POKEMONS_BY_QUERY)
+            }
+        }.start()
+    }
+
     private fun getScrollListener(layoutManager: LinearLayoutManager): RecyclerView.OnScrollListener {
         return object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
-                val lastIdToGet = nextPokemonIdToGet + POKEMONS_BY_QUERY
-                if (lastIdToGet <= LAST_POKEMON_ID)
-                    getPokemonsUntil(lastIdToGet)
+                //val lastIdToGet = nextPokemonIdToGet + POKEMONS_BY_QUERY
+                //if (lastIdToGet <= LAST_POKEMON_ID)
+                //    getPokemonsUntil(lastIdToGet)
             }
         }
     }
