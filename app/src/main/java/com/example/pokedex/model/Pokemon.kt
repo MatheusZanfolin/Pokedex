@@ -9,7 +9,7 @@ class Pokemon {
 
     val sprites = PokemonSpriteList("")
 
-    var sprite_front_default: Drawable? = null
+    var thumbnail: Drawable? = null
 }
 
 class PokemonSpriteList(val front_default: String)

@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Pokedex</string>
-    <string name="txt_id_placeholder_text">00</string>
+    <string name="txt_id_placeholder_text">#00</string>
     <string name="txt_name_placeholder_text">Fakemon</string>
+    <string name="txt_loading_text">Paciência é uma virtude :|</string>
 </resources>

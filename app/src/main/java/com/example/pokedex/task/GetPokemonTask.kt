@@ -2,32 +2,51 @@ package com.example.pokedex.task
 
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
-import android.widget.ImageView
-import android.widget.TextView
+import android.support.constraint.ConstraintLayout
+import android.util.Log
+import android.view.View
 import com.example.pokedex.api.ApiUtil
 import com.example.pokedex.api.PokemonService
 import com.example.pokedex.model.Pokemon
+import com.example.pokedex.viewmodel.PokemonListViewModel
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.net.URL
 
-class GetPokemonTask(val txtNameReference: WeakReference<TextView>, val imgThumbReference: WeakReference<ImageView>) : AsyncTask<Void, Void, Pokemon>() {
-    override fun doInBackground(vararg params: Void?): Pokemon {
-        val pkmnService = ApiUtil.retrofit.create(PokemonService::class.java)
+class GetPokemonTask(val firstPokemonId: Int, val lastPokemonId: Int, val model: PokemonListViewModel, val loadingScreen: WeakReference<ConstraintLayout>) : AsyncTask<Void, Void, List<Pokemon>>() {
+    override fun doInBackground(vararg params: Void?): List<Pokemon> {
+        val pokemonList = mutableListOf<Pokemon>()
+        for (id in firstPokemonId..lastPokemonId) {
+            val pkmnService = ApiUtil.retrofit.create(PokemonService::class.java)
 
-        val pkmnCall = pkmnService.getById(1)
+            val pkmnCall = pkmnService.getById(id)
 
-        val pkmn = pkmnCall.execute().body()
+            val response = pkmnCall.execute()
 
-        pkmn?.sprite_front_default = getDrawableFromURL(pkmn?.sprites?.front_default ?: "")
+            val pkmn: Pokemon? = response.body()
 
-        return pkmn ?: Pokemon()
+            pkmn?.let {
+                pkmn.thumbnail = getDrawableFromURL(pkmn.sprites.front_default)
+
+                pokemonList.add(it)
+            }
+        }
+
+        return pokemonList
     }
 
-    override fun onPostExecute(pokemon: Pokemon?) {
-        txtNameReference.get()?.setText(pokemon?.name)
+    private fun getIndexFromId(id: Int): Int {
+        return id - 1
+    }
 
-        imgThumbReference.get()?.setImageDrawable(pokemon?.sprite_front_default)
+    override fun onPostExecute(pokemons: List<Pokemon>?) {
+        pokemons?.let {
+            for (pokemon in pokemons) {
+                model.onPokemonAdded(pokemon, getIndexFromId(pokemon.id))
+            }
+
+            loadingScreen.get()?.visibility = View.INVISIBLE
+        }
     }
 
     private fun getDrawableFromURL(url: String): Drawable? {
