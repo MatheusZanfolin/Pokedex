@@ -36,8 +36,6 @@ class PokemonListAdapter() : RecyclerView.Adapter<PokemonListAdapter.PokemonView
         pokemons = list
 
         notifyItemInserted(pokemons.size - 1)
-
-        Thread.sleep(100)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): PokemonViewHolder {
