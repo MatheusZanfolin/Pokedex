@@ -11,7 +11,7 @@ import android.widget.TextView
 import com.example.pokedex.R
 import com.example.pokedex.databinding.PokemonListItemBinding
 
-class PokemonListAdapter : RecyclerView.Adapter<PokemonListAdapter.PokemonViewHolder>() {
+class PokemonListAdapter(val itemClickListener: (Pokemon) -> Unit) : RecyclerView.Adapter<PokemonListAdapter.PokemonViewHolder>() {
     init {
         setHasStableIds(true)
     }
@@ -29,6 +29,12 @@ class PokemonListAdapter : RecyclerView.Adapter<PokemonListAdapter.PokemonViewHo
 
         fun clearAnimation() {
             binding.root.clearAnimation()
+        }
+
+        fun addOnClickListener(pokemon: Pokemon, listener: (Pokemon) -> Unit) {
+            itemView.setOnClickListener {
+                listener.invoke(pokemon)
+            }
         }
     }
 
@@ -63,6 +69,8 @@ class PokemonListAdapter : RecyclerView.Adapter<PokemonListAdapter.PokemonViewHo
         holder.txtId.setText(pokemon.id.toString())
         holder.txtName.setText(pokemon.name.capitalize())
         holder.imgThumbnail.setImageDrawable(pokemon.thumbnail)
+
+        holder.addOnClickListener(pokemon, itemClickListener)
 
         setAnimation(holder.itemView, position)
     }

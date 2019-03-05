@@ -46,7 +46,8 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
                     val pkmn = response.body()
 
                     pkmn?.let {
-                        pkmn.thumbnail = getDrawableFromURL(pkmn.sprites.front_default)
+                        setDrawables(pkmn)
+
 
                         val index = pkmn.id - firstPokemonId
 
@@ -71,6 +72,13 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
                 return pokemonArray.toList() as List<Pokemon>
             }
         }
+    }
+
+    private fun setDrawables(pkmn: Pokemon) {
+        pkmn.thumbnail = getDrawableFromURL(pkmn.sprites.front_default)
+
+        pkmn.frontShiny = getDrawableFromURL(pkmn.sprites.front_shiny)
+        pkmn.frontFemale = getDrawableFromURL(pkmn.sprites.front_female)
     }
 
     override fun onPostExecute(pokemons: List<Pokemon>?) {

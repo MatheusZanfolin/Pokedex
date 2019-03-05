@@ -58,6 +58,12 @@ class MainActivity : AppCompatActivity() {
         enableContinuousLoading()
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        stopAllThreads = false
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
 
@@ -101,10 +107,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpList() {
-        binding.lstPokemons.adapter = PokemonListAdapter()
+        binding.lstPokemons.adapter = PokemonListAdapter { pkmn -> onPokemonClick(pkmn) }
         binding.lstPokemons.layoutManager = LinearLayoutManager(this)
         binding.lstPokemons.addItemDecoration(getDecoration(getLayoutManager()))
         binding.lstPokemons.itemAnimator = DefaultItemAnimator()
+    }
+
+    private fun onPokemonClick(pokemon: Pokemon) {
+        Toast.makeText(this, "Clicou em $pokemon", Toast.LENGTH_SHORT).show()
     }
 
     private fun enableContinuousLoading() {
