@@ -1,15 +1,22 @@
 package com.example.pokedex
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
+import android.content.DialogInterface
 import android.databinding.DataBindingUtil
+import android.net.ConnectivityManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.View
 import com.example.pokedex.databinding.ActivityMainBinding
 import com.example.pokedex.model.Pokemon
 import com.example.pokedex.model.PokemonListAdapter
@@ -42,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
         setUpList()
 
-        loadMoreItems()
+        enableContinuousLoading()
     }
 
     private fun setUpViewModel() {
@@ -61,31 +68,38 @@ class MainActivity : AppCompatActivity() {
         binding.lstPokemons.layoutManager = LinearLayoutManager(this)
         binding.lstPokemons.addItemDecoration(getDecoration(getLayoutManager()))
         binding.lstPokemons.itemAnimator = DefaultItemAnimator()
-        binding.lstPokemons.addOnScrollListener(getScrollListener(getLayoutManager()))
 
         getPokemonsUntil(INITIAL_POKEMON_COUNT)
     }
 
-    private fun loadMoreItems() {
-        Thread {
-            while (nextPokemonIdToGet <= 807) {
-                do { } while (GetPokemonTask.isLoading)
+    private fun enableContinuousLoading() {
+        if (isOnline()) {
+            Thread {
+                while (nextPokemonIdToGet <= LAST_POKEMON_ID) {
+                    do { } while (GetPokemonTask.isLoading)
 
-                getPokemonsUntil(nextPokemonIdToGet + POKEMONS_BY_QUERY)
-            }
-        }.start()
+                    getPokemonsUntil(nextPokemonIdToGet + POKEMONS_BY_QUERY)
+                }
+            }.start()
+        } else {
+            showNoInternetDialog()
+        }
     }
 
-    private fun getScrollListener(layoutManager: LinearLayoutManager): RecyclerView.OnScrollListener {
-        return object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                //val lastIdToGet = nextPokemonIdToGet + POKEMONS_BY_QUERY
-                //if (lastIdToGet <= LAST_POKEMON_ID)
-                //    getPokemonsUntil(lastIdToGet)
-            }
+    private fun showNoInternetDialog() {
+        if (isUiThread()) {
+            AlertDialog.Builder(this)
+                .setTitle("Sem internet!")
+                .setMessage("Por favor, conecte-se à internet e reinicie sua Pokédex!")
+                .setPositiveButton("REINICIAR", getRestartButtonListener())
+                .setNegativeButton("SAIR", getExitButtonListener())
+                .create()
+                .show()
         }
+    }
+
+    private fun isUiThread(): Boolean {
+        return Looper.getMainLooper().thread == Thread.currentThread()
     }
 
     private fun getDecoration(layoutManager: LinearLayoutManager): RecyclerView.ItemDecoration {
@@ -96,9 +110,35 @@ class MainActivity : AppCompatActivity() {
         return binding.lstPokemons.layoutManager as LinearLayoutManager
     }
 
+    @SuppressLint("SetTextI18n")
     private fun getPokemonsUntil(lastId: Int) {
-        GetPokemonTask(nextPokemonIdToGet, lastId, model, WeakReference(binding.loadingScreen)).execute()
+        if (isOnline()) {
+            GetPokemonTask(nextPokemonIdToGet, lastId, model, WeakReference(binding.loadingScreen)).execute()
 
-        nextPokemonIdToGet = lastId + 1
+            nextPokemonIdToGet = lastId + 1
+        } else {
+            showNoInternetDialog()
+        }
+    }
+
+    private fun getExitButtonListener(): DialogInterface.OnClickListener? {
+        return DialogInterface.OnClickListener { dialog, which ->
+            finish()
+        }
+    }
+
+    private fun getRestartButtonListener(): DialogInterface.OnClickListener? {
+        return DialogInterface.OnClickListener { dialog, which ->
+            finish()
+            startActivity(intent)
+        }
+    }
+
+    private fun isOnline(): Boolean {
+        val connManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val netInfo = connManager.activeNetworkInfo
+
+        return netInfo?.isConnected ?: false
     }
 }
