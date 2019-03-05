@@ -11,7 +11,11 @@ import android.widget.TextView
 import com.example.pokedex.R
 import com.example.pokedex.databinding.PokemonListItemBinding
 
-class PokemonListAdapter() : RecyclerView.Adapter<PokemonListAdapter.PokemonViewHolder>() {
+class PokemonListAdapter : RecyclerView.Adapter<PokemonListAdapter.PokemonViewHolder>() {
+    init {
+        setHasStableIds(true)
+    }
+
     private var pokemons: List<Pokemon> = listOf()
 
     private var lastPosition = -1
@@ -28,14 +32,21 @@ class PokemonListAdapter() : RecyclerView.Adapter<PokemonListAdapter.PokemonView
         }
     }
 
+    override fun getItemId(position: Int): Long {
+        return pokemons[position].id.toLong()
+    }
+
     fun addPokemon(pokemon: Pokemon) {
         val list = pokemons.toMutableList()
+
+        if (list.contains(pokemon))
+            return
 
         list.add(pokemon)
 
         pokemons = list
 
-        notifyItemInserted(pokemons.size - 1)
+        notifyItemInserted(pokemon.id - 1)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): PokemonViewHolder {

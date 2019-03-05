@@ -16,23 +16,27 @@ import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import com.example.pokedex.databinding.ActivityMainBinding
 import com.example.pokedex.model.Pokemon
 import com.example.pokedex.model.PokemonListAdapter
+import com.example.pokedex.task.GetPokemonMethod
 import com.example.pokedex.task.GetPokemonTask
 import com.example.pokedex.viewmodel.PokemonListViewModel
 import java.lang.ref.WeakReference
+import java.time.chrono.MinguoChronology
 
 class MainActivity : AppCompatActivity() {
-    val POKEMONS_BY_QUERY = 2
-    val INITIAL_POKEMON_COUNT = 10
-
-    val LAST_POKEMON_ID = 807
-
-    var nextPokemonIdToGet = 1
+    val INITIAL_POKEMON_COUNT = 9
 
     lateinit var binding: ActivityMainBinding
+
+    companion object {
+        var stopAllThreads: Boolean = false
+    }
 
     val model: PokemonListViewModel by lazy {
         ViewModelProviders.of(this).get(PokemonListViewModel::class.java)
@@ -45,11 +49,44 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
+        stopAllThreads = false
+
         setUpViewModel()
 
         setUpList()
 
         enableContinuousLoading()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.btnSearch -> {
+                AlertDialog.Builder(this)
+                    .setTitle("Buscar pokémon")
+                    .setItems(R.array.searchTypes, getSearchLisneter())
+                    .create()
+                    .show()
+
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private fun getSearchLisneter(): DialogInterface.OnClickListener? {
+        return DialogInterface.OnClickListener { dialog, which ->
+            when (which) {
+                0 -> Toast.makeText(this, "Buscar por nome", Toast.LENGTH_SHORT).show()
+                1 -> Toast.makeText(this, "Buscar por ID", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setUpViewModel() {
@@ -68,19 +105,11 @@ class MainActivity : AppCompatActivity() {
         binding.lstPokemons.layoutManager = LinearLayoutManager(this)
         binding.lstPokemons.addItemDecoration(getDecoration(getLayoutManager()))
         binding.lstPokemons.itemAnimator = DefaultItemAnimator()
-
-        getPokemonsUntil(INITIAL_POKEMON_COUNT)
     }
 
     private fun enableContinuousLoading() {
         if (isOnline()) {
-            Thread {
-                while (nextPokemonIdToGet <= LAST_POKEMON_ID) {
-                    do { } while (GetPokemonTask.isLoading)
-
-                    getPokemonsUntil(nextPokemonIdToGet + POKEMONS_BY_QUERY)
-                }
-            }.start()
+            GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, 1, INITIAL_POKEMON_COUNT, model, WeakReference(binding.loadingScreen)).execute()
         } else {
             showNoInternetDialog()
         }
@@ -110,17 +139,6 @@ class MainActivity : AppCompatActivity() {
         return binding.lstPokemons.layoutManager as LinearLayoutManager
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun getPokemonsUntil(lastId: Int) {
-        if (isOnline()) {
-            GetPokemonTask(nextPokemonIdToGet, lastId, model, WeakReference(binding.loadingScreen)).execute()
-
-            nextPokemonIdToGet = lastId + 1
-        } else {
-            showNoInternetDialog()
-        }
-    }
-
     private fun getExitButtonListener(): DialogInterface.OnClickListener? {
         return DialogInterface.OnClickListener { dialog, which ->
             finish()
@@ -140,5 +158,11 @@ class MainActivity : AppCompatActivity() {
         val netInfo = connManager.activeNetworkInfo
 
         return netInfo?.isConnected ?: false
+    }
+
+    override fun onBackPressed() {
+        stopAllThreads = true
+
+        finishAffinity()
     }
 }

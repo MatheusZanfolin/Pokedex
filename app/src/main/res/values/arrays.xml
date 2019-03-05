@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="searchTypes">
+        <item>Por nome</item>
+        <item>Por ID</item>
+    </array>
+</resources>

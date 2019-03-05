@@ -5,49 +5,79 @@ import android.os.AsyncTask
 import android.support.constraint.ConstraintLayout
 import android.util.Log
 import android.view.View
+import com.example.pokedex.MainActivity
 import com.example.pokedex.api.ApiUtil
 import com.example.pokedex.api.PokemonService
 import com.example.pokedex.model.Pokemon
 import com.example.pokedex.viewmodel.PokemonListViewModel
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.net.URL
 
-class GetPokemonTask(val firstPokemonId: Int, val lastPokemonId: Int, val model: PokemonListViewModel, val loadingScreen: WeakReference<ConstraintLayout>) : AsyncTask<Void, Void, List<Pokemon>>() {
+class GetPokemonTask(private val method: GetPokemonMethod, private val firstPokemonId: Int, private val lastPokemonId: Int, private val model: PokemonListViewModel, val loadingScreen: WeakReference<ConstraintLayout>) : AsyncTask<Void, Void, List<Pokemon>>() {
     companion object {
         var isLoading = false
+
+        var nextPokemonIdToGet = 1
+
+        val POKEMONS_BY_QUERY = 3
+
+        val LAST_POKEMON_ID = 807
     }
 
     override fun doInBackground(vararg params: Void?): List<Pokemon> {
         isLoading = true
 
-        val pokemonList = mutableListOf<Pokemon>()
-        for (id in firstPokemonId..lastPokemonId) {
-            val pkmnService = ApiUtil.retrofit.create(PokemonService::class.java)
+        val desiredSize = (lastPokemonId - firstPokemonId) + 1
 
-            val pkmnCall = pkmnService.getById(id)
+        val pokemonArray = Array<Pokemon?>(desiredSize) { null }
+        when (method) {
+            GetPokemonMethod.SYNCHRONOUS -> {
+                for (id in firstPokemonId..lastPokemonId) {
+                    val pkmnService = ApiUtil.retrofit.create(PokemonService::class.java)
 
-            val response = pkmnCall.execute()
+                    val pkmnCall = pkmnService.getById(id)
 
-            val pkmn: Pokemon? = response.body()
+                    val response = pkmnCall.execute()
 
-            pkmn?.let {
-                pkmn.thumbnail = getDrawableFromURL(pkmn.sprites.front_default)
+                    val pkmn = response.body()
 
-                pokemonList.add(it)
+                    pkmn?.let {
+                        pkmn.thumbnail = getDrawableFromURL(pkmn.sprites.front_default)
+
+                        val index = pkmn.id - firstPokemonId
+
+                        pokemonArray[index] = pkmn
+                    }
+                }
+
+                return pokemonArray.toList() as List<Pokemon>
+            }
+
+            GetPokemonMethod.ASYNCHRONOUS -> {
+                for (id in firstPokemonId..lastPokemonId) {
+                    val pkmnService = ApiUtil.retrofit.create(PokemonService::class.java)
+
+                    val pkmnCall = pkmnService.getById(id)
+
+                    pkmnCall.enqueue(getRequestCallback(pokemonArray))
+                }
+
+                do { } while (storedPokemons(pokemonArray) < desiredSize)
+
+                return pokemonArray.toList() as List<Pokemon>
             }
         }
-
-        return pokemonList
-    }
-
-    private fun getIndexFromId(id: Int): Int {
-        return id - 1
     }
 
     override fun onPostExecute(pokemons: List<Pokemon>?) {
         pokemons?.let {
             for (pokemon in pokemons) {
+                Log.d("mytag", "Adding $pokemon")
+
                 model.onPokemonAdded(pokemon, getIndexFromId(pokemon.id))
             }
 
@@ -55,6 +85,56 @@ class GetPokemonTask(val firstPokemonId: Int, val lastPokemonId: Int, val model:
         }
 
         isLoading = false
+
+        nextPokemonIdToGet = lastPokemonId + 1
+        if (nextPokemonIdToGet <= LAST_POKEMON_ID) {
+            if (!MainActivity.stopAllThreads) {
+                var lastPokemonId = nextPokemonIdToGet + POKEMONS_BY_QUERY - 1
+
+                if (lastPokemonId > LAST_POKEMON_ID)
+                    lastPokemonId = LAST_POKEMON_ID
+
+                GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, nextPokemonIdToGet, lastPokemonId, model, loadingScreen).execute()
+            }
+        }
+    }
+
+    private fun storedPokemons(pokemonArray: Array<Pokemon?>): Int {
+        var stored = 0
+        pokemonArray.forEach {
+            it?.let {
+                stored += 1
+            }
+        }
+
+        return stored
+    }
+
+    private fun getRequestCallback(pokemonArray: Array<Pokemon?>): Callback<Pokemon> {
+        return object : Callback<Pokemon> {
+            override fun onFailure(call: Call<Pokemon>, t: Throwable) {
+                t.printStackTrace()
+            }
+
+            override fun onResponse(call: Call<Pokemon>, response: Response<Pokemon>) {
+                val pkmn = response.body()
+
+                Thread {
+                    pkmn?.let {
+                        it.thumbnail = getDrawableFromURL(it.sprites.front_default)
+
+                        val pokemonIndex = it.id - firstPokemonId
+
+                        if (!pokemonArray.contains(it))
+                            pokemonArray[pokemonIndex] = it
+                    }
+                }.start()
+            }
+        }
+    }
+
+    private fun getIndexFromId(id: Int): Int {
+        return id - 1
     }
 
     private fun getDrawableFromURL(url: String): Drawable? {

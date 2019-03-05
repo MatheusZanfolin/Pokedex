@@ -10,6 +10,10 @@ class Pokemon {
     val sprites = PokemonSpriteList("")
 
     var thumbnail: Drawable? = null
+
+    override fun toString(): String {
+        return "#$id ${name.capitalize()}"
+    }
 }
 
 class PokemonSpriteList(val front_default: String)
