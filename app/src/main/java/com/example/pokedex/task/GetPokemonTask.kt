@@ -25,7 +25,7 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
 
         val POKEMONS_BY_QUERY = 3
 
-        val LAST_POKEMON_ID = 807
+        val LAST_POKEMON_ID = 251 // Done due to memory limitations TODO Separate list in tabs, each containing a different gen
     }
 
     override fun doInBackground(vararg params: Void?): List<Pokemon> {
@@ -84,8 +84,6 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
     override fun onPostExecute(pokemons: List<Pokemon>?) {
         pokemons?.let {
             for (pokemon in pokemons) {
-                Log.d("mytag", "Adding $pokemon")
-
                 model.onPokemonAdded(pokemon, getIndexFromId(pokemon.id))
             }
 

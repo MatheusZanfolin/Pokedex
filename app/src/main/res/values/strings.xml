@@ -4,4 +4,10 @@
     <string name="txt_name_placeholder_text">Fakemon</string>
     <string name="txt_loading_text">Paciência é uma virtude :|</string>
     <string name="menu_main_search_text">Pesquisar</string>
+    <string name="txt_weight_label_text">Peso:</string>
+    <string name="txt_types_label_text">Tipo(s):</string>
+    <string name="txt_height_label_text">Altura:</string>
+    <string name="txt_abilities_label_text">Habilidades:</string>
+    <string name="img_front_female_label">Fêmea</string>
+    <string name="img_front_shiny_label">Shiny</string>
 </resources>

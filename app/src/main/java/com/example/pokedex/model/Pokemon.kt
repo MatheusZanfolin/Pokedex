@@ -1,8 +1,9 @@
 package com.example.pokedex.model
 
 import android.graphics.drawable.Drawable
+import java.io.Serializable
 
-class Pokemon {
+class Pokemon : Serializable {
     val id: Int = 0
 
     val name: String = ""
@@ -19,4 +20,4 @@ class Pokemon {
     }
 }
 
-class PokemonSpriteList(val front_default: String, val front_shiny: String, val front_female: String)
+class PokemonSpriteList(val front_default: String, val front_shiny: String, val front_female: String) : Serializable

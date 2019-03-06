@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.net.ConnectivityManager
 import android.support.v7.app.AppCompatActivity
@@ -19,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import com.example.pokedex.databinding.ActivityMainBinding
 import com.example.pokedex.databinding.DlgSearchPkmnBinding
 import com.example.pokedex.model.Pokemon
@@ -40,7 +40,29 @@ class MainActivity : AppCompatActivity() {
     var pokemonSearchResult: Pokemon? = null
 
     companion object {
+        var POKEMON_ID_KEY = "id"
+        var POKEMON_NAME_KEY = "name"
+        var POKEMON_SPRITES_KEY = "sprites"
+
         var stopAllThreads: Boolean = false
+
+        fun startPkmnInfoActivity(context: Context, pokemon: Pokemon?) {
+            val pokemonInfoIntent = Intent(context, PkmnInfoActivity::class.java)
+
+            pokemonInfoIntent.putExtras(getPkmnInfoExtras(pokemon))
+
+            context.startActivity(pokemonInfoIntent)
+        }
+
+        private fun getPkmnInfoExtras(pokemon: Pokemon?): Bundle {
+            val extras = Bundle()
+
+            extras.putInt(POKEMON_ID_KEY, pokemon?.id ?: 0)
+            extras.putString(POKEMON_NAME_KEY, pokemon?.name)
+            extras.putSerializable(POKEMON_SPRITES_KEY, pokemon?.sprites)
+
+            return extras
+        }
     }
 
     enum class PokemonSearchType {
@@ -59,19 +81,23 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        stopAllThreads = false
-
         setUpViewModel()
 
         setUpList()
 
-        enableContinuousLoading()
+        startContinuousLoading()
     }
 
     override fun onResume() {
         super.onResume()
 
         stopAllThreads = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        stopAllThreads = true
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -94,6 +120,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         return false
+    }
+
+    override fun onBackPressed() {
+        finishAffinity()
     }
 
     private fun getSearchTypeListener(): DialogInterface.OnClickListener? {
@@ -139,17 +169,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpList() {
-        binding.lstPokemons.adapter = PokemonListAdapter { pkmn -> onPokemonClick(pkmn) }
+        binding.lstPokemons.adapter = PokemonListAdapter { pkmn -> startPkmnInfoActivity(this, pkmn) }
         binding.lstPokemons.layoutManager = LinearLayoutManager(this)
         binding.lstPokemons.addItemDecoration(getDecoration(getLayoutManager()))
         binding.lstPokemons.itemAnimator = DefaultItemAnimator()
     }
 
-    private fun onPokemonClick(pokemon: Pokemon) {
-        Toast.makeText(this, "Clicou em $pokemon", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun enableContinuousLoading() {
+    private fun startContinuousLoading() {
         if (isOnline()) {
             GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, 1, INITIAL_POKEMON_COUNT, model, WeakReference(binding.loadingScreen)).execute()
         } else {
@@ -200,11 +226,5 @@ class MainActivity : AppCompatActivity() {
         val netInfo = connManager.activeNetworkInfo
 
         return netInfo?.isConnected ?: false
-    }
-
-    override fun onBackPressed() {
-        stopAllThreads = true
-
-        finishAffinity()
     }
 }

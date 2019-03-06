@@ -14,7 +14,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme"
             tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".PkmnInfoActivity">
+        <activity android:name=".PkmnInfoActivity" android:parentActivityName=".MainActivity">
         </activity>
         <activity android:name=".MainActivity" android:screenOrientation="portrait">
             <intent-filter>

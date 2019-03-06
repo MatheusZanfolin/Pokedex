@@ -33,7 +33,7 @@ class SearchPokemonTask(val searchType: MainActivity.PokemonSearchType, val acti
         if (result?.id == POKEMON_NOT_FOUND_ID) {
             Toast.makeText(activity.get(), "Esse pokémon não existe!", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(activity.get(), "Achou $result", Toast.LENGTH_SHORT).show()
+            MainActivity.startPkmnInfoActivity(activity.get()!!, result)
         }
     }
 
