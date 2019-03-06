@@ -1,6 +1,5 @@
 package com.example.pokedex
 
-import android.annotation.SuppressLint
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -15,27 +14,38 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
+import android.text.InputType
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.example.pokedex.databinding.ActivityMainBinding
+import com.example.pokedex.databinding.DlgSearchPkmnBinding
 import com.example.pokedex.model.Pokemon
 import com.example.pokedex.model.PokemonListAdapter
 import com.example.pokedex.task.GetPokemonMethod
 import com.example.pokedex.task.GetPokemonTask
+import com.example.pokedex.task.SearchPokemonTask
 import com.example.pokedex.viewmodel.PokemonListViewModel
 import java.lang.ref.WeakReference
-import java.time.chrono.MinguoChronology
 
 class MainActivity : AppCompatActivity() {
+    // TODO Separate list into tabs, each containing a generation
+
     val INITIAL_POKEMON_COUNT = 9
 
     lateinit var binding: ActivityMainBinding
 
+    var pokemonSearchResult: Pokemon? = null
+
     companion object {
         var stopAllThreads: Boolean = false
+    }
+
+    enum class PokemonSearchType {
+        BY_ID,
+        BY_NAME
     }
 
     val model: PokemonListViewModel by lazy {
@@ -75,7 +85,7 @@ class MainActivity : AppCompatActivity() {
             R.id.btnSearch -> {
                 AlertDialog.Builder(this)
                     .setTitle("Buscar pokémon")
-                    .setItems(R.array.searchTypes, getSearchLisneter())
+                    .setItems(R.array.searchTypes, getSearchTypeListener())
                     .create()
                     .show()
 
@@ -86,12 +96,34 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    private fun getSearchLisneter(): DialogInterface.OnClickListener? {
+    private fun getSearchTypeListener(): DialogInterface.OnClickListener? {
         return DialogInterface.OnClickListener { dialog, which ->
             when (which) {
-                0 -> Toast.makeText(this, "Buscar por nome", Toast.LENGTH_SHORT).show()
-                1 -> Toast.makeText(this, "Buscar por ID", Toast.LENGTH_SHORT).show()
+                0 -> showSearchDialog("Nome do pokémon", PokemonSearchType.BY_NAME)
+                1 -> showSearchDialog("ID do pokémon", PokemonSearchType.BY_ID)
             }
+        }
+    }
+
+    private fun showSearchDialog(hint: String, searchType: PokemonSearchType) {
+        val searchView: View = LayoutInflater.from(this).inflate(R.layout.dlg_search_pkmn, null, false)
+
+        val binding = DlgSearchPkmnBinding.bind(searchView)
+
+        binding.edSearch.hint = hint
+        binding.edSearch.inputType = if (searchType == PokemonSearchType.BY_ID) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT
+
+        AlertDialog.Builder(this)
+            .setTitle("Buscar pokémon")
+            .setView(searchView)
+            .setPositiveButton("PESQUISAR", getSearchLisneter(binding, searchType))
+            .create()
+            .show()
+    }
+
+    private fun getSearchLisneter(binding: DlgSearchPkmnBinding, searchType: PokemonSearchType): DialogInterface.OnClickListener? {
+        return DialogInterface.OnClickListener { dialog, which ->
+            SearchPokemonTask(searchType, WeakReference(this)).execute(binding.edSearch.text.toString())
         }
     }
 
