@@ -32,8 +32,6 @@ import com.example.pokedex.viewmodel.PokemonListViewModel
 import java.lang.ref.WeakReference
 
 class MainActivity : AppCompatActivity() {
-    // TODO Separate list into tabs, each containing a generation
-
     val INITIAL_POKEMON_COUNT = 9
 
     lateinit var binding: ActivityMainBinding
@@ -64,8 +62,8 @@ class MainActivity : AppCompatActivity() {
 
             extras.putInt(POKEMON_ID_KEY, pokemon?.id ?: 0)
             extras.putString(POKEMON_NAME_KEY, pokemon?.name)
-            extras.putInt(POKEMON_HEIGHT_KEY, pokemon?.height ?: 0)
-            extras.putInt(POKEMON_WEIGHT_KEY, pokemon?.weight ?: 0)
+            extras.putInt(POKEMON_HEIGHT_KEY, pokemon?.heightInCentimeters ?: 0)
+            extras.putDouble(POKEMON_WEIGHT_KEY, pokemon?.weightInKilograms ?: 0.0)
             extras.putSerializable(POKEMON_SPRITES_KEY, pokemon?.sprites)
             extras.putSerializable(POKEMON_TYPES_KEY, pokemon?.types?.toTypedArray())
             extras.putSerializable(POKEMON_ABILITIES_KEY, pokemon?.abilities?.toTypedArray())

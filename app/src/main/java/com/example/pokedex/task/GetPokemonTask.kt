@@ -25,7 +25,7 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
 
         val POKEMONS_BY_QUERY = 3
 
-        val LAST_POKEMON_ID = 251 // Done due to memory limitations TODO Separate list in tabs, each containing a different gen
+        val LAST_POKEMON_ID = 151 // Done due to memory limitations TODO Separate list in tabs, each containing a different gen
     }
 
     override fun doInBackground(vararg params: Void?): List<Pokemon> {

@@ -9,17 +9,20 @@ class Pokemon : Serializable {
     val name: String = ""
 
     val height: Int = 0
-
     val weight: Int = 0
 
-    val types: List<ApiPokemonType> = listOf()
+    val heightInCentimeters: Int
+        get() = height.times(10)
 
+    val weightInKilograms: Double
+        get() = weight.times(0.1)
+
+    val types: List<ApiPokemonType> = listOf()
     val abilities: List<ApiPokemonAbility> = listOf()
 
     val sprites = PokemonSpriteList("", "", "")
 
     var thumbnail: Drawable? = null
-
     var frontShiny: Drawable? = null
     var frontFemale: Drawable? = null
 

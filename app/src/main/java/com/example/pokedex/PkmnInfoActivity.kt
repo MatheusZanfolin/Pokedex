@@ -46,8 +46,8 @@ class PkmnInfoActivity : AppCompatActivity() {
         val extras = intent.extras
 
         binding.txtInfoName.text = extras?.getString(MainActivity.POKEMON_NAME_KEY)?.capitalize()
-        binding.txtHeight.text = toCentimeters(extras?.getInt(MainActivity.POKEMON_HEIGHT_KEY)).toString() + " cm"
-        binding.txtWeight.text = toKilograms(extras?.getInt(MainActivity.POKEMON_WEIGHT_KEY)).toString() + " Kg"
+        binding.txtHeight.text = extras?.getInt(MainActivity.POKEMON_HEIGHT_KEY).toString() + " cm"
+        binding.txtWeight.text = extras?.getDouble(MainActivity.POKEMON_WEIGHT_KEY).toString() + " Kg"
         binding.txtTypes.text = getTypesToText(extras?.getSerializable(MainActivity.POKEMON_TYPES_KEY) as Array<ApiPokemonType>)
         binding.txtAbilities.text = getAbilitiesToText(extras?.getSerializable(MainActivity.POKEMON_ABILITIES_KEY) as Array<ApiPokemonAbility>)
 
@@ -83,13 +83,5 @@ class PkmnInfoActivity : AppCompatActivity() {
             typesToString += ", ${types[1].type.name.capitalize()}"
 
         return typesToString
-    }
-
-    private fun toKilograms(weightInHectograms: Int?): Double {
-        return weightInHectograms?.times(0.1) ?: 0.0
-    }
-
-    private fun toCentimeters(heightInDecimeters: Int?): Int {
-        return heightInDecimeters?.times(10) ?: 0
     }
 }
