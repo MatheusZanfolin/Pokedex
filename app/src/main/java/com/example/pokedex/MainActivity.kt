@@ -16,6 +16,7 @@ import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -40,9 +41,13 @@ class MainActivity : AppCompatActivity() {
     var pokemonSearchResult: Pokemon? = null
 
     companion object {
-        var POKEMON_ID_KEY = "id"
-        var POKEMON_NAME_KEY = "name"
-        var POKEMON_SPRITES_KEY = "sprites"
+        val POKEMON_ID_KEY = "id"
+        val POKEMON_NAME_KEY = "name"
+        val POKEMON_HEIGHT_KEY = "height"
+        val POKEMON_WEIGHT_KEY = "weight"
+        var POKEMON_TYPES_KEY = "type"
+        val POKEMON_SPRITES_KEY = "sprites"
+        val POKEMON_ABILITIES_KEY = "abilities"
 
         var stopAllThreads: Boolean = false
 
@@ -59,7 +64,11 @@ class MainActivity : AppCompatActivity() {
 
             extras.putInt(POKEMON_ID_KEY, pokemon?.id ?: 0)
             extras.putString(POKEMON_NAME_KEY, pokemon?.name)
+            extras.putInt(POKEMON_HEIGHT_KEY, pokemon?.height ?: 0)
+            extras.putInt(POKEMON_WEIGHT_KEY, pokemon?.weight ?: 0)
             extras.putSerializable(POKEMON_SPRITES_KEY, pokemon?.sprites)
+            extras.putSerializable(POKEMON_TYPES_KEY, pokemon?.types?.toTypedArray())
+            extras.putSerializable(POKEMON_ABILITIES_KEY, pokemon?.abilities?.toTypedArray())
 
             return extras
         }

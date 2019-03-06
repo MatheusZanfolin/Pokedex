@@ -8,6 +8,14 @@ class Pokemon : Serializable {
 
     val name: String = ""
 
+    val height: Int = 0
+
+    val weight: Int = 0
+
+    val types: List<ApiPokemonType> = listOf()
+
+    val abilities: List<ApiPokemonAbility> = listOf()
+
     val sprites = PokemonSpriteList("", "", "")
 
     var thumbnail: Drawable? = null
@@ -21,3 +29,11 @@ class Pokemon : Serializable {
 }
 
 class PokemonSpriteList(val front_default: String, val front_shiny: String, val front_female: String) : Serializable
+
+class ApiPokemonType(val type: PokemonType): Serializable
+
+class PokemonType(val name: String): Serializable
+
+class ApiPokemonAbility(val ability: PokemonAbility): Serializable
+
+class PokemonAbility(val name: String): Serializable

@@ -148,12 +148,13 @@
                 android:id="@+id/txtAbilities"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
                 android:textSize="16sp"
                 android:textStyle="italic"
+                android:lineSpacingExtra="4dp"
                 app:layout_constraintTop_toTopOf="@id/txtAbilitiesLabel"
-                app:layout_constraintBottom_toBottomOf="@id/txtAbilitiesLabel"
                 app:layout_constraintLeft_toRightOf="@id/glPkmnInfo"/>
 
     </android.support.constraint.ConstraintLayout>
