@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <android.support.constraint.ConstraintLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".PkmnListAcitivity$PokedexFragment">
+
+        <android.support.constraint.ConstraintLayout
+                android:id="@+id/loadingScreen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <ImageView
+                    android:id="@+id/imgLoading"
+                    android:layout_width="128dp"
+                    android:layout_height="128dp"
+                    android:src="@drawable/ic_loading"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"/>
+
+            <TextView
+                    android:id="@+id/txtLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txt_loading_text"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    app:layout_constraintTop_toBottomOf="@id/imgLoading"
+                    app:layout_constraintLeft_toLeftOf="@id/imgLoading"
+                    app:layout_constraintRight_toRightOf="@id/imgLoading"/>
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/lstPokemons"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+    </android.support.constraint.ConstraintLayout>
+</layout>

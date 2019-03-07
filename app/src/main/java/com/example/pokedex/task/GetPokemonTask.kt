@@ -6,6 +6,7 @@ import android.support.constraint.ConstraintLayout
 import android.util.Log
 import android.view.View
 import com.example.pokedex.MainActivity
+import com.example.pokedex.PkmnListAcitivity
 import com.example.pokedex.api.ApiUtil
 import com.example.pokedex.api.PokemonService
 import com.example.pokedex.model.Pokemon
@@ -17,19 +18,21 @@ import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.net.URL
 
-class GetPokemonTask(private val method: GetPokemonMethod, private val firstPokemonId: Int, private val lastPokemonId: Int, private val model: PokemonListViewModel, val loadingScreen: WeakReference<ConstraintLayout>) : AsyncTask<Void, Void, List<Pokemon>>() {
+class GetPokemonTask(private val method: GetPokemonMethod, private val firstPokemonId: Int, private val lastPokemonId: Int, private val model: PokemonListViewModel, val loadingScreen: WeakReference<ConstraintLayout>) : AsyncTask<Int, Void, List<Pokemon>>() {
     companion object {
         var isLoading = false
 
         var nextPokemonIdToGet = 1
 
         val POKEMONS_BY_QUERY = 3
-
-        val LAST_POKEMON_ID = 151 // Done due to memory limitations TODO Separate list in tabs, each containing a different gen
     }
 
-    override fun doInBackground(vararg params: Void?): List<Pokemon> {
+    var lastPokemonIdByRegion: Int = 0
+
+    override fun doInBackground(vararg params: Int?): List<Pokemon> {
         isLoading = true
+
+        lastPokemonIdByRegion = params[0] ?: 0
 
         val desiredSize = (lastPokemonId - firstPokemonId) + 1
 
@@ -82,6 +85,9 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
     }
 
     override fun onPostExecute(pokemons: List<Pokemon>?) {
+        if (PkmnListAcitivity.stopAllThreads)
+            return
+
         pokemons?.let {
             for (pokemon in pokemons) {
                 model.onPokemonAdded(pokemon, getIndexFromId(pokemon.id))
@@ -93,14 +99,14 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
         isLoading = false
 
         nextPokemonIdToGet = lastPokemonId + 1
-        if (nextPokemonIdToGet <= LAST_POKEMON_ID) {
+        if (nextPokemonIdToGet <= lastPokemonIdByRegion) {
             if (!MainActivity.stopAllThreads) {
                 var lastPokemonId = nextPokemonIdToGet + POKEMONS_BY_QUERY - 1
 
-                if (lastPokemonId > LAST_POKEMON_ID)
-                    lastPokemonId = LAST_POKEMON_ID
+                if (lastPokemonId > lastPokemonIdByRegion)
+                    lastPokemonId = lastPokemonIdByRegion
 
-                GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, nextPokemonIdToGet, lastPokemonId, model, loadingScreen).execute()
+                GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, nextPokemonIdToGet, lastPokemonId, model, loadingScreen).execute(lastPokemonIdByRegion)
             }
         }
     }

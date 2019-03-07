@@ -10,6 +10,8 @@ import android.net.ConnectivityManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
+import android.support.v4.app.FragmentTransaction
+import android.support.v7.app.ActionBar
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.DividerItemDecoration
@@ -124,6 +126,12 @@ class MainActivity : AppCompatActivity() {
 
                 return true
             }
+
+            R.id.btnList -> {
+                finish()
+
+                startActivity(Intent(this, PkmnListAcitivity::class.java))
+            }
         }
 
         return false
@@ -136,19 +144,19 @@ class MainActivity : AppCompatActivity() {
     private fun getSearchTypeListener(): DialogInterface.OnClickListener? {
         return DialogInterface.OnClickListener { dialog, which ->
             when (which) {
-                0 -> showSearchDialog("Nome do pokémon", PokemonSearchType.BY_NAME)
-                1 -> showSearchDialog("ID do pokémon", PokemonSearchType.BY_ID)
+                0 -> showSearchDialog("Nome do pokémon", PkmnListAcitivity.PokemonSearchType.BY_NAME)
+                1 -> showSearchDialog("ID do pokémon", PkmnListAcitivity.PokemonSearchType.BY_ID)
             }
         }
     }
 
-    private fun showSearchDialog(hint: String, searchType: PokemonSearchType) {
+    private fun showSearchDialog(hint: String, searchType: PkmnListAcitivity.PokemonSearchType) {
         val searchView: View = LayoutInflater.from(this).inflate(R.layout.dlg_search_pkmn, null, false)
 
         val binding = DlgSearchPkmnBinding.bind(searchView)
 
         binding.edSearch.hint = hint
-        binding.edSearch.inputType = if (searchType == PokemonSearchType.BY_ID) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT
+        binding.edSearch.inputType = if (searchType == PkmnListAcitivity.PokemonSearchType.BY_ID) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_CLASS_TEXT
 
         AlertDialog.Builder(this)
             .setTitle("Buscar pokémon")
@@ -158,7 +166,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun getSearchLisneter(binding: DlgSearchPkmnBinding, searchType: PokemonSearchType): DialogInterface.OnClickListener? {
+    private fun getSearchLisneter(binding: DlgSearchPkmnBinding, searchType: PkmnListAcitivity.PokemonSearchType): DialogInterface.OnClickListener? {
         return DialogInterface.OnClickListener { dialog, which ->
             SearchPokemonTask(searchType, WeakReference(this)).execute(binding.edSearch.text.toString())
         }
@@ -184,7 +192,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startContinuousLoading() {
         if (isOnline()) {
-            GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, 1, INITIAL_POKEMON_COUNT, model, WeakReference(binding.loadingScreen)).execute()
+            //GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, 1, INITIAL_POKEMON_COUNT, model, WeakReference(binding.loadingScreen)).execute(151)
         } else {
             showNoInternetDialog()
         }

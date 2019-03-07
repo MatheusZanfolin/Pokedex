@@ -10,4 +10,8 @@
     <string name="txt_abilities_label_text">Habilidades:</string>
     <string name="img_front_female_label">Fêmea</string>
     <string name="img_front_shiny_label">Shiny</string>
+    <string name="title_activity_pkmn_list_acitivity">Pokedex</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="menu_main_list_text">Lista</string>
 </resources>
