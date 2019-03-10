@@ -20,6 +20,7 @@ import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -67,8 +68,6 @@ class PkmnListAcitivity : AppCompatActivity() {
         val POKEMON_SPRITES_KEY = "sprites"
         val POKEMON_ABILITIES_KEY = "abilities"
 
-        var stopAllThreads: Boolean = false
-
         fun startPkmnInfoActivity(context: Context, pokemon: Pokemon?) {
             val pokemonInfoIntent = Intent(context, PkmnInfoActivity::class.java)
 
@@ -103,18 +102,6 @@ class PkmnListAcitivity : AppCompatActivity() {
 
         // Set up the ViewPager with the sections adapter.
         container.adapter = mSectionsPagerAdapter
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        stopAllThreads = false
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        stopAllThreads = true
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -207,7 +194,13 @@ class PkmnListAcitivity : AppCompatActivity() {
 
         val INITIAL_POKEMON_COUNT = 9
 
+        val POKEMONS_BY_QUERY = 5
+
+        var nextPokemonIdToGet: Int = 0
+
         lateinit var binding: FragmentPkmnListAcitivityBinding
+
+        var pokemonLoaderTask: GetPokemonTask? = null
 
         companion object {
             /**
@@ -223,8 +216,12 @@ class PkmnListAcitivity : AppCompatActivity() {
             fun newInstance(sectionNumber: Int): PokedexFragment {
                 val fragment = PokedexFragment()
                 val args = Bundle()
+
                 args.putInt(ARG_SECTION_NUMBER, sectionNumber)
                 fragment.arguments = args
+
+                fragment.nextPokemonIdToGet = fragment.getFirstBySectionNumber(sectionNumber)
+
                 return fragment
             }
         }
@@ -244,17 +241,41 @@ class PkmnListAcitivity : AppCompatActivity() {
 
             setUpList()
 
-            startContinuousLoading(arguments?.getInt(ARG_SECTION_NUMBER), rootView)
+            loadFirstPokemons()
 
             return rootView
         }
 
-        private fun startContinuousLoading(sectionNumber: Int?, rootView: View) {
-            if (isOnline(rootView)) {
-                GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, getFirstBySectionNumber(sectionNumber), getFirstBySectionNumber(sectionNumber) + INITIAL_POKEMON_COUNT - 1, model, WeakReference(binding.loadingScreen)).execute(getLastBySectionNumber(sectionNumber))
-            } else {
-                showNoInternetDialog(rootView)
-            }
+        override fun onResume() {
+            super.onResume()
+
+            loadFirstPokemons()
+        }
+
+        private fun loadFirstPokemons() {
+            val firstInThisRegion = getFirstBySectionNumber(arguments?.getInt(ARG_SECTION_NUMBER))
+
+            loadPokemonsUntil(firstInThisRegion + INITIAL_POKEMON_COUNT - 1)
+        }
+
+        fun loadPokemonsUntil(lastIdToLoad: Int) {
+            val loadingPkmns = this.pokemonLoaderTask?.isLoading ?: false
+
+            if (loadingPkmns)
+                return
+
+            val lastFromThisRegion = getLastBySectionNumber(arguments?.getInt(ARG_SECTION_NUMBER))
+
+            if (nextPokemonIdToGet > lastFromThisRegion)
+                return
+
+            val realLastId = if (lastIdToLoad <= lastFromThisRegion) lastIdToLoad else lastFromThisRegion
+
+            pokemonLoaderTask = GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, nextPokemonIdToGet, realLastId, model, WeakReference(binding.loadingScreen))
+
+            pokemonLoaderTask?.execute()
+
+            nextPokemonIdToGet = lastIdToLoad + 1
         }
 
         private fun getFirstBySectionNumber(sectionNumber: Int?): Int {
@@ -277,34 +298,46 @@ class PkmnListAcitivity : AppCompatActivity() {
             }
         }
 
-        private fun isOnline(rootView: View): Boolean {
-            val connManager = rootView.context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        private fun isOnline(): Boolean {
+            val connManager = activity?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
             val netInfo = connManager.activeNetworkInfo
 
             return netInfo?.isConnected ?: false
         }
 
-        private fun showNoInternetDialog(rootView: View) {
+        private fun showNoInternetDialog() {
             if (isUiThread()) {
-                AlertDialog.Builder(rootView.context)
-                    .setTitle("Sem internet!")
-                    .setMessage("Por favor, conecte-se à internet e reinicie sua Pokédex!")
-                    .setPositiveButton("REINICIAR", getRestartButtonListener(rootView))
-                    .setNegativeButton("SAIR", getExitButtonListener())
-                    .create()
-                    .show()
+                val context = activity
+
+                if (context?.isFinishing == true)
+                    return
+
+                context?.let {
+                    AlertDialog.Builder(context)
+                        .setTitle("Sem internet!")
+                        .setMessage("Por favor, conecte-se à internet e reinicie sua Pokédex!")
+                        .setPositiveButton("REINICIAR", getRestartButtonListener())
+                        .setNegativeButton("SAIR", getExitButtonListener())
+                        .setCancelable(false)
+                        .create()
+                        .show()
+                }
             }
         }
 
         private fun getExitButtonListener(): DialogInterface.OnClickListener? {
             return DialogInterface.OnClickListener { dialog, which ->
+                dialog.dismiss()
+
                 activity?.finish()
             }
         }
 
-        private fun getRestartButtonListener(rootView: View): DialogInterface.OnClickListener? {
+        private fun getRestartButtonListener(): DialogInterface.OnClickListener? {
             return DialogInterface.OnClickListener { dialog, which ->
+                dialog.dismiss()
+
                 activity?.finish()
 
                 startActivity(activity?.intent)
@@ -331,6 +364,21 @@ class PkmnListAcitivity : AppCompatActivity() {
             binding.lstPokemons.adapter = PokemonListAdapter { pkmn -> startPkmnInfoActivity(activity!!, pkmn) }
             binding.lstPokemons.addItemDecoration(getDecoration(getLayoutManager()))
             binding.lstPokemons.itemAnimator = DefaultItemAnimator()
+
+            binding.lstPokemons.addOnScrollListener(getListScrollListener())
+        }
+
+        private fun getListScrollListener(): RecyclerView.OnScrollListener {
+            return object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy == 0)
+                        return
+
+                    val lastIdToLoad = nextPokemonIdToGet + POKEMONS_BY_QUERY - 1
+
+                    loadPokemonsUntil(lastIdToLoad)
+                }
+            }
         }
 
         private fun getDecoration(layoutManager: LinearLayoutManager): RecyclerView.ItemDecoration {

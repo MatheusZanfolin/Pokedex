@@ -3,7 +3,6 @@ package com.example.pokedex.task
 import android.app.Activity
 import android.os.AsyncTask
 import android.widget.Toast
-import com.example.pokedex.MainActivity
 import com.example.pokedex.PkmnListAcitivity
 import com.example.pokedex.api.ApiUtil
 import com.example.pokedex.api.PokemonService
@@ -33,11 +32,7 @@ class SearchPokemonTask(val searchType: PkmnListAcitivity.PokemonSearchType, val
         if (result?.id == POKEMON_NOT_FOUND_ID) {
             Toast.makeText(activity.get(), "Esse pokémon não existe!", Toast.LENGTH_SHORT).show()
         } else {
-            if (activity.get() is MainActivity) {
-                (activity.get() as MainActivity).pokemonSearchResult = result
-
-                MainActivity.startPkmnInfoActivity(activity.get()!!, result)
-            } else if (activity.get() is PkmnListAcitivity) {
+            if (activity.get() is PkmnListAcitivity) {
                 (activity.get() as PkmnListAcitivity).pokemonSearchResult = result
 
                 PkmnListAcitivity.startPkmnInfoActivity(activity.get()!!, result)

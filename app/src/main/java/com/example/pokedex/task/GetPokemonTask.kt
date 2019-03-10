@@ -3,9 +3,7 @@ package com.example.pokedex.task
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.support.constraint.ConstraintLayout
-import android.util.Log
 import android.view.View
-import com.example.pokedex.MainActivity
 import com.example.pokedex.PkmnListAcitivity
 import com.example.pokedex.api.ApiUtil
 import com.example.pokedex.api.PokemonService
@@ -19,20 +17,16 @@ import java.lang.ref.WeakReference
 import java.net.URL
 
 class GetPokemonTask(private val method: GetPokemonMethod, private val firstPokemonId: Int, private val lastPokemonId: Int, private val model: PokemonListViewModel, val loadingScreen: WeakReference<ConstraintLayout>) : AsyncTask<Int, Void, List<Pokemon>>() {
-    companion object {
-        var isLoading = false
-
-        var nextPokemonIdToGet = 1
-
-        val POKEMONS_BY_QUERY = 3
-    }
-
-    var lastPokemonIdByRegion: Int = 0
+    var isLoading: Boolean = false
+        private set(value) {
+            field = value
+        }
 
     override fun doInBackground(vararg params: Int?): List<Pokemon> {
-        isLoading = true
+        if (isLoading)
+            cancel(true)
 
-        lastPokemonIdByRegion = params[0] ?: 0
+        isLoading = true
 
         val desiredSize = (lastPokemonId - firstPokemonId) + 1
 
@@ -77,17 +71,7 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
         }
     }
 
-    private fun setDrawables(pkmn: Pokemon) {
-        pkmn.thumbnail = getDrawableFromURL(pkmn.sprites.front_default)
-
-        pkmn.frontShiny = getDrawableFromURL(pkmn.sprites.front_shiny)
-        pkmn.frontFemale = getDrawableFromURL(pkmn.sprites.front_female)
-    }
-
     override fun onPostExecute(pokemons: List<Pokemon>?) {
-        if (PkmnListAcitivity.stopAllThreads)
-            return
-
         pokemons?.let {
             for (pokemon in pokemons) {
                 model.onPokemonAdded(pokemon, getIndexFromId(pokemon.id))
@@ -97,18 +81,13 @@ class GetPokemonTask(private val method: GetPokemonMethod, private val firstPoke
         }
 
         isLoading = false
+    }
 
-        nextPokemonIdToGet = lastPokemonId + 1
-        if (nextPokemonIdToGet <= lastPokemonIdByRegion) {
-            if (!MainActivity.stopAllThreads) {
-                var lastPokemonId = nextPokemonIdToGet + POKEMONS_BY_QUERY - 1
+    private fun setDrawables(pkmn: Pokemon) {
+        pkmn.thumbnail = getDrawableFromURL(pkmn.sprites.front_default)
 
-                if (lastPokemonId > lastPokemonIdByRegion)
-                    lastPokemonId = lastPokemonIdByRegion
-
-                GetPokemonTask(GetPokemonMethod.ASYNCHRONOUS, nextPokemonIdToGet, lastPokemonId, model, loadingScreen).execute(lastPokemonIdByRegion)
-            }
-        }
+        pkmn.frontShiny = getDrawableFromURL(pkmn.sprites.front_shiny)
+        pkmn.frontFemale = getDrawableFromURL(pkmn.sprites.front_female)
     }
 
     private fun storedPokemons(pokemonArray: Array<Pokemon?>): Int {

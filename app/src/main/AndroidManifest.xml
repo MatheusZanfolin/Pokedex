@@ -27,11 +27,8 @@
         </activity>
         <activity
                 android:name=".PkmnInfoActivity"
-                android:parentActivityName=".MainActivity">
-        </activity>
-        <activity
-                android:name=".MainActivity"
-                android:screenOrientation="portrait">
+                android:screenOrientation="portrait"
+                android:parentActivityName=".PkmnListAcitivity">
         </activity>
     </application>
 

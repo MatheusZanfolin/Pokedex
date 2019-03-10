@@ -18,6 +18,16 @@ import java.lang.ref.WeakReference
 
 class PkmnInfoActivity : AppCompatActivity() {
 
+    companion object {
+        val POKEMON_ID_KEY = "id"
+        val POKEMON_NAME_KEY = "name"
+        val POKEMON_HEIGHT_KEY = "height"
+        val POKEMON_WEIGHT_KEY = "weight"
+        var POKEMON_TYPES_KEY = "type"
+        val POKEMON_SPRITES_KEY = "sprites"
+        val POKEMON_ABILITIES_KEY = "abilities"
+    }
+
     lateinit var binding: ActivityPkmnInfoBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,13 +55,13 @@ class PkmnInfoActivity : AppCompatActivity() {
     private fun setUpScreen() {
         val extras = intent.extras
 
-        binding.txtInfoName.text = extras?.getString(MainActivity.POKEMON_NAME_KEY)?.capitalize()
-        binding.txtHeight.text = extras?.getInt(MainActivity.POKEMON_HEIGHT_KEY).toString() + " cm"
-        binding.txtWeight.text = extras?.getDouble(MainActivity.POKEMON_WEIGHT_KEY).toString() + " Kg"
-        binding.txtTypes.text = getTypesToText(extras?.getSerializable(MainActivity.POKEMON_TYPES_KEY) as Array<ApiPokemonType>)
-        binding.txtAbilities.text = getAbilitiesToText(extras?.getSerializable(MainActivity.POKEMON_ABILITIES_KEY) as Array<ApiPokemonAbility>)
+        binding.txtInfoName.text = extras?.getString(POKEMON_NAME_KEY)?.capitalize()
+        binding.txtHeight.text = extras?.getInt(POKEMON_HEIGHT_KEY).toString() + " cm"
+        binding.txtWeight.text = getWeightToText(extras?.getDouble(POKEMON_WEIGHT_KEY))
+        binding.txtTypes.text = getTypesToText(extras?.getSerializable(POKEMON_TYPES_KEY) as Array<ApiPokemonType>)
+        binding.txtAbilities.text = getAbilitiesToText(extras.getSerializable(POKEMON_ABILITIES_KEY) as Array<ApiPokemonAbility>)
 
-        val spriteList: PokemonSpriteList = extras.getSerializable(MainActivity.POKEMON_SPRITES_KEY) as PokemonSpriteList
+        val spriteList: PokemonSpriteList = extras.getSerializable(POKEMON_SPRITES_KEY) as PokemonSpriteList
 
         GetPokemonSpritesTask(
             WeakReference(imgFrontDefault),
@@ -63,6 +73,12 @@ class PkmnInfoActivity : AppCompatActivity() {
             spriteList.front_shiny
         )
     }
+
+    private fun getWeightToText(weight: Double?): String {
+        return weight?.format(2) + " Kg"
+    }
+
+    fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
 
     private fun getAbilitiesToText(abilities: Array<ApiPokemonAbility>): CharSequence? {
         var abilitiesToString = ""
