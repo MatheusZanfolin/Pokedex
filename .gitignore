@@ -1,5 +1,5 @@
+.gradle/*
+
 # IntelliJ files
-.idea/misc.xml
-.idea/vcs.xml
-.idea/gradle.xml
-.idea/workspace.xml
+.idea/*
+*.iml
