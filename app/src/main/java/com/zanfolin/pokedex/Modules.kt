@@ -22,3 +22,6 @@ val pokemonModule = module {
     single { PokemonRepository(RETROFIT.create(PokemonEndpoint::class.java)) }
     viewModel { (region: Region) -> PokemonViewModel(region, get()) }
 }
+
+// TODO Criar classe abstrata base para o repositorio, que sabe qual endpoint deve inicializar
+// TODO Injetar via construtor apenas a instância de retrofit desejada para os filhos do repositorio base
