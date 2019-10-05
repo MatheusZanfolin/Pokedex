@@ -1,4 +1,4 @@
-package com.zanfolin.pokedex.base.model
+package com.zanfolin.pokedex.base.domain
 
 import android.graphics.drawable.Drawable
 import java.io.Serializable

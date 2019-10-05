@@ -11,10 +11,10 @@ import androidx.databinding.DataBindingUtil
 import com.zanfolin.pokedex.R
 import com.zanfolin.pokedex.feature.details.utils.format
 import com.zanfolin.pokedex.databinding.ActivityPkmnInfoBinding
-import com.zanfolin.pokedex.base.model.ApiPokemonAbility
-import com.zanfolin.pokedex.base.model.ApiPokemonType
-import com.zanfolin.pokedex.base.model.Pokemon
-import com.zanfolin.pokedex.base.model.PokemonSpriteList
+import com.zanfolin.pokedex.base.domain.ApiPokemonAbility
+import com.zanfolin.pokedex.base.domain.ApiPokemonType
+import com.zanfolin.pokedex.base.domain.Pokemon
+import com.zanfolin.pokedex.base.domain.PokemonSpriteList
 
 class PkmnDetailsActivity : AppCompatActivity() {
 

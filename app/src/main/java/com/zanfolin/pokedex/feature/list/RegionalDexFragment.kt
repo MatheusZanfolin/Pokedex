@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.zanfolin.pokedex.R
-import com.zanfolin.pokedex.base.model.Pokemon
+import com.zanfolin.pokedex.base.domain.Pokemon
 import com.zanfolin.pokedex.base.util.Region
 import com.zanfolin.pokedex.base.util.ThreadIdentifier
 import com.zanfolin.pokedex.databinding.FragmentRegionalDexBinding

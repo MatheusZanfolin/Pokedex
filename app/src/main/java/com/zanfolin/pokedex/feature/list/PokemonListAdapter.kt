@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.zanfolin.pokedex.R
 import com.zanfolin.pokedex.databinding.PokemonListItemBinding
-import com.zanfolin.pokedex.base.model.Pokemon
+import com.zanfolin.pokedex.base.domain.Pokemon
 
 class PokemonViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val binding = PokemonListItemBinding.bind(view)

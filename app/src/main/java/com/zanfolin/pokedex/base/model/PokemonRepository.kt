@@ -1,7 +1,7 @@
-package com.zanfolin.pokedex.base.api
+package com.zanfolin.pokedex.base.model
 
 import com.zanfolin.pokedex.base.util.takeBodyAndSendToMainThread
-import com.zanfolin.pokedex.base.model.Pokemon
+import com.zanfolin.pokedex.base.domain.Pokemon
 import io.reactivex.Observable
 
 class PokemonRepository(val endpoint: PokemonEndpoint) {

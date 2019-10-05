@@ -1,7 +1,7 @@
 package com.zanfolin.pokedex
 
-import com.zanfolin.pokedex.base.api.PokemonEndpoint
-import com.zanfolin.pokedex.base.api.PokemonRepository
+import com.zanfolin.pokedex.base.model.PokemonEndpoint
+import com.zanfolin.pokedex.base.model.PokemonRepository
 import com.zanfolin.pokedex.base.util.Region
 import com.zanfolin.pokedex.feature.list.viewmodel.PokemonViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
