@@ -1,4 +1,4 @@
-package com.zanfolin.pokedex.base.model
+package com.zanfolin.pokedex.base.model.pokemon
 
 import com.zanfolin.pokedex.base.domain.Pokemon
 import io.reactivex.Observable

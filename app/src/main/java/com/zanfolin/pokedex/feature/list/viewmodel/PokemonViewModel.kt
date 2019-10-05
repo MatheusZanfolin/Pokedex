@@ -1,7 +1,7 @@
 package com.zanfolin.pokedex.feature.list.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.zanfolin.pokedex.base.model.PokemonRepository
+import com.zanfolin.pokedex.base.model.pokemon.PokemonRepository
 import com.zanfolin.pokedex.base.domain.Pokemon
 import com.zanfolin.pokedex.base.util.PokemonNationalDexIdProvider
 import com.zanfolin.pokedex.base.util.Region
