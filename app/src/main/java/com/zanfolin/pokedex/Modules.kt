@@ -1,6 +1,5 @@
 package com.zanfolin.pokedex
 
-import com.zanfolin.pokedex.base.model.pokemon.PokemonEndpoint
 import com.zanfolin.pokedex.base.model.pokemon.PokemonRepository
 import com.zanfolin.pokedex.base.util.Region
 import com.zanfolin.pokedex.feature.list.viewmodel.PokemonViewModel

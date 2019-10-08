@@ -1,8 +1,8 @@
 package com.zanfolin.pokedex.base.model.pokemon
 
-import com.zanfolin.pokedex.base.util.takeBodyAndSendToMainThread
 import com.zanfolin.pokedex.base.domain.Pokemon
 import com.zanfolin.pokedex.base.model.Repository
+import com.zanfolin.pokedex.base.util.takeBodyAndSendToMainThread
 import io.reactivex.Observable
 import retrofit2.Retrofit
 

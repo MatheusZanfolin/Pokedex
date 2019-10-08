@@ -84,30 +84,4 @@ class RegionalDexFragment private constructor(val region: Region) : Fragment() {
         binding.txtLoading.visibility = View.GONE
     }
 
-    private fun showNoInternetDialog() {
-        if (ThreadIdentifier.isUiThread()) {
-            val context = activity
-
-            if (context?.isFinishing == true)
-                return
-
-            context?.let {
-                AlertDialog.Builder(context)
-                    .setTitle("Sem internet!")
-                    .setMessage("Por favor, conecte-se à internet e reinicie sua Pokédex!")
-                    .setPositiveButton("REINICIAR", ::onRestartButtonPressed)
-                    .setNegativeButton("SAIR") { _, _ -> activity?.finish() }
-                    .setCancelable(false)
-                    .create()
-                    .show()
-            }
-        }
-    }
-
-    private fun onRestartButtonPressed(dialog: DialogInterface, which: Int) {
-        activity?.finish()
-
-        startActivity(activity?.intent)
-    }
-
 }
