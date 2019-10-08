@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.zanfolin.pokedex.R
 import com.zanfolin.pokedex.databinding.PokemonListItemBinding
 import com.zanfolin.pokedex.base.domain.Pokemon
+import java.util.*
 
 class PokemonListAdapter(@DrawableRes private val placeholderDrawable: Int, private val itemClickListener: (Pokemon) -> Unit) : RecyclerView.Adapter<PokemonViewHolder>() {
 
@@ -39,16 +40,12 @@ class PokemonListAdapter(@DrawableRes private val placeholderDrawable: Int, priv
         val pokemon = pokemons[position]
 
         if (pokemon.id != 0)
-            bindItem(holder, pokemon)
+            holder.bind(pokemon, itemClickListener)
         else
-            bindErrorItem(holder)
+            holder.bindErrorView()
 
         setAnimation(holder.itemView, position)
     }
-
-    private fun bindItem(holder: PokemonViewHolder, pokemon: Pokemon) = holder.bind(pokemon, itemClickListener)
-
-    private fun bindErrorItem(holder: PokemonViewHolder) = holder.bindErrorView()
 
     override fun onViewDetachedFromWindow(holder: PokemonViewHolder) = holder.clearAnimation()
 
