@@ -19,3 +19,5 @@ public abstract class Repository<E> {
     }
 
 }
+
+// TODO Testes unitários com RxJava e Retrofit. (Talvez experimentar com MockWebServer)
