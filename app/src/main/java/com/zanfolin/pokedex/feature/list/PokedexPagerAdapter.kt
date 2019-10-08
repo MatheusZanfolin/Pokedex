@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import com.zanfolin.pokedex.base.util.Region
 
 class PokedexPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
+
     override fun getItem(position: Int): Fragment {
         val currentRegion = Region.values()[position]
 
@@ -15,4 +16,5 @@ class PokedexPagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
     override fun getCount() = Region.values().size
 
     override fun getPageTitle(position: Int) = Region.values()[position].title
+
 }

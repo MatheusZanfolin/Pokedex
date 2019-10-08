@@ -73,8 +73,8 @@ class PkmnListActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun searchPokemon(searchType: PokemonSearchCriteria) { // TODO
-
+    private fun searchPokemon(searchType: PokemonSearchCriteria) {
+        // TODO
     }
 
 }
