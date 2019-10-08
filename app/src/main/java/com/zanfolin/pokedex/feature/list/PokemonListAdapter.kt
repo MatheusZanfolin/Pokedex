@@ -13,7 +13,8 @@ import com.zanfolin.pokedex.R
 import com.zanfolin.pokedex.databinding.PokemonListItemBinding
 import com.zanfolin.pokedex.base.domain.Pokemon
 
-class PokemonViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class PokemonViewHolder(view: View, @DrawableRes private val placeholderDrawable: Int) : RecyclerView.ViewHolder(view) {
+
     val binding = PokemonListItemBinding.bind(view)
 
     val txtId: TextView = binding.txtId
@@ -22,9 +23,29 @@ class PokemonViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     fun clearAnimation() = binding.root.clearAnimation()
 
-    fun addOnClickListener(pokemon: Pokemon, listener: (Pokemon) -> Unit) = itemView.setOnClickListener {
+    fun bind(pokemon: Pokemon, listener: (Pokemon) -> Unit) {
+        txtId.text = pokemon.id.toString()
+        txtName.text = pokemon.name.capitalize()
+
+        Glide
+            .with(itemView.context)
+            .load(pokemon.sprites.front_default)
+            .placeholder(placeholderDrawable)
+            .into(imgThumbnail)
+
+        addOnClickListener(pokemon, listener)
+    }
+
+    fun bindErrorView() {
+        txtId.text = "3̴̧̨͙̝̐̀́̕ͅ6̸̮̹̳̪͛̈́͒?̶͓̗̲̲͂"
+        txtName.text = "M̶̻͓͝ì̶̫ŝ̸̩̦̈́ş̸̬̕ï̸̥͘g̷̳̞͆N̴̼͐͗ö̶̲͈́"
+        imgThumbnail.setImageResource(placeholderDrawable);
+    }
+
+    private fun addOnClickListener(pokemon: Pokemon, listener: (Pokemon) -> Unit) = itemView.setOnClickListener {
         listener.invoke(pokemon)
     }
+
 }
 
 class PokemonListAdapter(@DrawableRes private val placeholderDrawable: Int, private val itemClickListener: (Pokemon) -> Unit) : RecyclerView.Adapter<PokemonViewHolder>() {
@@ -46,38 +67,23 @@ class PokemonListAdapter(@DrawableRes private val placeholderDrawable: Int, priv
             .from(parent.context)
             .inflate(R.layout.pokemon_list_item, parent, false)
 
-        return PokemonViewHolder(view)
+        return PokemonViewHolder(view, placeholderDrawable)
     }
 
     override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
         val pokemon = pokemons[position]
 
         if (pokemon.id != 0)
-            setupHolderForPokemon(holder, pokemon)
+            bindItem(holder, pokemon)
         else
-            setupHolderForMissigno(holder)
+            bindErrorItem(holder)
 
         setAnimation(holder.itemView, position)
     }
 
-    private fun setupHolderForPokemon(holder: PokemonViewHolder, pokemon: Pokemon) {
-        holder.txtId.text = pokemon.id.toString()
-        holder.txtName.text = pokemon.name.capitalize()
+    private fun bindItem(holder: PokemonViewHolder, pokemon: Pokemon) = holder.bind(pokemon, itemClickListener)
 
-        Glide
-            .with(holder.itemView.context)
-            .load(pokemon.sprites.front_default)
-            .placeholder(placeholderDrawable)
-            .into(holder.imgThumbnail)
-
-        holder.addOnClickListener(pokemon, itemClickListener)
-    }
-
-    private fun setupHolderForMissigno(holder: PokemonViewHolder) {
-        holder.txtId.text = "3̴̧̨͙̝̐̀́̕ͅ6̸̮̹̳̪͛̈́͒?̶͓̗̲̲͂"
-        holder.txtName.text = "M̶̻͓͝ì̶̫ŝ̸̩̦̈́ş̸̬̕ï̸̥͘g̷̳̞͆N̴̼͐͗ö̶̲͈́"
-        holder.imgThumbnail.setImageResource(placeholderDrawable);
-    }
+    private fun bindErrorItem(holder: PokemonViewHolder) = holder.bindErrorView()
 
     override fun onViewDetachedFromWindow(holder: PokemonViewHolder) = holder.clearAnimation()
 
