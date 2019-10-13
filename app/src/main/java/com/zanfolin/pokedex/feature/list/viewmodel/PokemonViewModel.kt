@@ -21,7 +21,7 @@ class PokemonViewModel(region: Region, val repository: PokemonRepository) : View
         nextPokemonId = lastIdToSearch + 1
     }
 
-    fun getPokemon(id: Int, onResult: (Pokemon) -> Unit, onError: (Int, Throwable) -> Unit) {
+    private fun getPokemon(id: Int, onResult: (Pokemon) -> Unit, onError: (Int, Throwable) -> Unit) {
         repository
             .getPokemonById(id)
             .subscribe({ pkmn -> onResult(pkmn) } , {t -> onError(id, t)})
