@@ -9,7 +9,7 @@ import com.zanfolin.pokedex.base.util.Region
 private const val POKEMONS_PER_REQUEST = 20
 private const val PAGE_OFFSET = POKEMONS_PER_REQUEST - 1
 
-class PokemonViewModel(region: Region, val repository: PokemonRepository) : ViewModel() {
+class PokemonListViewModel(region: Region, val repository: PokemonRepository) : ViewModel() {
 
     private var nextPokemonId = PokemonNationalDexIdProvider.getFirstByRegion(region)
 
