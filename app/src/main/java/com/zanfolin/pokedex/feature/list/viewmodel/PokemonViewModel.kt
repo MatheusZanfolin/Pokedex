@@ -27,10 +27,4 @@ class PokemonViewModel(region: Region, val repository: PokemonRepository) : View
             .subscribe({ pkmn -> onResult(pkmn) } , {t -> onError(id, t)})
     }
 
-    fun getPokemon(name: String, onResult: (Pokemon) -> Unit, onError: (Throwable) -> Unit) {
-        repository
-            .getPokemonByName(name)
-            .subscribe({ pkmn -> onResult(pkmn) } , {t -> onError(t)})
-    }
-
 }
