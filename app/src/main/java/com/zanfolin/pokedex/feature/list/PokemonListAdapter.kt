@@ -20,13 +20,13 @@ class PokemonListAdapter(@DrawableRes private val placeholderDrawable: Int, priv
         setHasStableIds(true)
     }
 
-    private var pokemons = Array(156) { Pokemon() }
+    private var pokemons = listOf<Pokemon>()
 
     private var lastAnimatedPosition = -1
 
-    override fun getItemId(position: Int): Long = pokemons[position].id.toLong()
+    override fun getItemId(position: Int) = pokemons[position].id.toLong()
 
-    override fun getItemCount(): Int = pokemons.size
+    override fun getItemCount() = pokemons.size
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): PokemonViewHolder {
         val view = LayoutInflater
@@ -39,37 +39,16 @@ class PokemonListAdapter(@DrawableRes private val placeholderDrawable: Int, priv
     override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
         val pokemon = pokemons[position]
 
-        if (pokemon.id != 0)
+        if (pokemon.id != 0) {
             holder.bind(pokemon, itemClickListener)
-        else
+        } else {
             holder.bindErrorView()
+        }
 
         setAnimation(holder.itemView, position)
     }
 
     override fun onViewDetachedFromWindow(holder: PokemonViewHolder) = holder.clearAnimation()
-
-    fun addPokemon(pkmn: Pokemon) {
-        if (pokemons.contains(pkmn))
-            return
-
-        val index = pkmn.id - 1
-        if (index > pokemons.size) {
-            val extended = Array(index + 1) { i -> if (i < pokemons.size) pokemons[i] else Pokemon() }
-
-            pokemons = extended
-        }
-
-        pokemons[index] = pkmn
-
-        notifyItemInserted(index)
-    }
-
-    fun addPlaceholder(index: Int) {
-        pokemons[index] = Pokemon()
-
-        notifyItemInserted(index)
-    }
 
     private fun setAnimation(view: View, position: Int) {
         if (position > lastAnimatedPosition) {
@@ -80,6 +59,12 @@ class PokemonListAdapter(@DrawableRes private val placeholderDrawable: Int, priv
             lastAnimatedPosition = position
         }
     }
+
+    fun update(pkmns: List<Pokemon>?) {
+        pokemons = pkmns ?: listOf()
+        notifyDataSetChanged()
+    }
+
 }
 
 class PokemonViewHolder(view: View, @DrawableRes private val placeholderDrawable: Int) : RecyclerView.ViewHolder(view) {
