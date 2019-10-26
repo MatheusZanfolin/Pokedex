@@ -9,7 +9,7 @@ import retrofit2.http.Path
 
 interface PokemonByIdEndpoint {
 
-    @GET("pokemon/{id}/")
+    @GET("pokemon/{id}")
     fun getById(@Path("id") id: Int): Single<Response<Pokemon>>
 
 }

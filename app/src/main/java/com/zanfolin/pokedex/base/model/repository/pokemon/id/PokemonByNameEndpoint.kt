@@ -8,7 +8,7 @@ import retrofit2.http.Path
 
 interface PokemonByNameEndpoint {
 
-    @GET("pokemon/{name}/")
+    @GET("pokemon/{name}")
     fun getByName(@Path("name") name: String): Single<Response<Pokemon>>
 
 }
