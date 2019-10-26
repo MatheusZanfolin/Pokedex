@@ -1,23 +1,24 @@
 package com.zanfolin.pokedex.base.model;
 
-import java.lang.reflect.ParameterizedType;
+import com.zanfolin.pokedex.base.service.API;
 
-import retrofit2.Retrofit;
+import java.lang.reflect.ParameterizedType;
 
 public abstract class Repository<E> {
 
     protected final E endpoint;
 
-    public Repository(Retrofit service) {
-        endpoint = makeEndpoint(service);
+    public Repository(API api) {
+        endpoint = makeEndpoint(api);
     }
 
-    private E makeEndpoint(Retrofit service) {
+    private E makeEndpoint(API api) {
         final ParameterizedType type = (ParameterizedType) getClass().getGenericSuperclass();
         Class<E> endpoint = (Class<E>) type.getActualTypeArguments()[0];
-        return service.create(endpoint);
+
+        return api
+                .getService()
+                .create(endpoint);
     }
 
 }
-
-// TODO Testes unitários com RxJava e Retrofit. (Talvez experimentar com MockWebServer)

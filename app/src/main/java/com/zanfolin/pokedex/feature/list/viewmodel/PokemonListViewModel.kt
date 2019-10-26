@@ -11,12 +11,18 @@ import java.util.*
 
 class PokemonListViewModel(region: Region, val repository: PokemonRepository) : ViewModel() {
 
-    private var pageStart = PokemonNationalDexIdProvider.getFirstByRegion(region);
+    private var pageStart = PokemonNationalDexIdProvider.getFirstByRegion(region)
 
-    private val data: MutableLiveData<List<Pokemon>> by lazy { MutableLiveData() }
+    private val data = MutableLiveData<List<Pokemon>>()
+
+    private val isLoading = false
 
     val pokemons = data as LiveData<List<Pokemon>>
 
+    /* TODO Search for a single request that can return a list of pokemons or use RX's .zip method
+    COnsider also looking at concat map
+
+    */
     fun getMorePokemons(howMany: Int) {
         val buffer = makeBuffer(howMany)
         val nextPageStart = pageStart + howMany
