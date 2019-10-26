@@ -4,12 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.zanfolin.pokedex.base.domain.Pokemon
-import com.zanfolin.pokedex.base.model.pokemon.PokemonRepository
+import com.zanfolin.pokedex.base.model.repository.pokemon.name.PokemonByIdRepository
 import com.zanfolin.pokedex.base.util.PokemonNationalDexIdProvider
 import com.zanfolin.pokedex.base.util.Region
-import java.util.*
 
-class PokemonListViewModel(region: Region, val repository: PokemonRepository) : ViewModel() {
+class PokemonListViewModel(region: Region, val repository: PokemonByIdRepository) : ViewModel() {
 
     private var pageStart = PokemonNationalDexIdProvider.getFirstByRegion(region)
 

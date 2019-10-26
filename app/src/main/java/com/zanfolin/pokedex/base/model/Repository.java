@@ -1,7 +1,5 @@
 package com.zanfolin.pokedex.base.model;
 
-import com.zanfolin.pokedex.base.service.API;
-
 import java.lang.reflect.ParameterizedType;
 
 public abstract class Repository<E> {

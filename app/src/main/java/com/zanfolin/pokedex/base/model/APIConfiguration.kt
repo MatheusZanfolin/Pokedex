@@ -1,4 +1,4 @@
-package com.zanfolin.pokedex.base.service
+package com.zanfolin.pokedex.base.model
 
 import okhttp3.HttpUrl
 import retrofit2.Retrofit
