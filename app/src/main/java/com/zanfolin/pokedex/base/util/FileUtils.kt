@@ -8,6 +8,7 @@ import java.lang.RuntimeException
 
 object FileUtils {
 
+    @JvmStatic
     fun readJsonForEndpoint(url: String): String {
         return readJson("$url.json")
     }
