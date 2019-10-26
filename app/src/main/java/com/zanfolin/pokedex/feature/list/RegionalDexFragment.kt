@@ -15,6 +15,7 @@ import com.zanfolin.pokedex.R
 import com.zanfolin.pokedex.base.util.Region
 import com.zanfolin.pokedex.databinding.FragmentRegionalDexBinding
 import com.zanfolin.pokedex.feature.details.PkmnDetailsActivity
+import com.zanfolin.pokedex.feature.list.util.RecyclerViewScrollDirection
 import com.zanfolin.pokedex.feature.list.util.RecyclerViewScrollDirection.Companion.DOWN
 import com.zanfolin.pokedex.feature.list.viewmodel.PokemonListViewModel
 import kotlinx.android.synthetic.main.fragment_regional_dex.*
@@ -34,13 +35,16 @@ class RegionalDexFragment private constructor(private val region: Region) : Frag
         fun newInstance(region: Region) = RegionalDexFragment(region)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
+        inflater.inflate(R.layout.fragment_regional_dex, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         setupList()
 
         viewModel.pokemons.observe(this, Observer(listAdapter::update))
         viewModel.getMorePokemons(howMany = 10)
-
-        return inflater.inflate(R.layout.fragment_regional_dex, container, false)
     }
 
     private fun setupList() = lstPokemons.apply {
@@ -49,7 +53,18 @@ class RegionalDexFragment private constructor(private val region: Region) : Frag
         addItemDecoration(DividerItemDecoration(activity, listLayoutManager.orientation))
         itemAnimator = DefaultItemAnimator()
 
-        addOnScrollListener(PokedexScrollListener(viewModel))
+        addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy == 0) {
+                    return
+                }
+
+                if (!recyclerView.canScrollVertically(DOWN)) {
+                    viewModel.getMorePokemons(howMany = 10)
+                }
+            }
+        })
     }
 
 }
