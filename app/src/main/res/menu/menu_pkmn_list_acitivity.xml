@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.zanfolin.pokedex.feature.list.PkmnListActivity">
+    <item android:id="@+id/action_search"
+          android:title="@string/menu_main_search_text"
+          android:orderInCategory="100"
+          android:icon="@android:drawable/ic_menu_search"
+          app:showAsAction="ifRoom"/>
+</menu>

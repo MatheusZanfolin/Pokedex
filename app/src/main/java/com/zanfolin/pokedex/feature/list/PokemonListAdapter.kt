@@ -1,0 +1,103 @@
+package com.zanfolin.pokedex.feature.list
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AnimationUtils
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.annotation.DrawableRes
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.zanfolin.pokedex.R
+import com.zanfolin.pokedex.databinding.PokemonListItemBinding
+import com.zanfolin.pokedex.base.domain.Pokemon
+import java.util.*
+
+class PokemonListAdapter(@DrawableRes private val placeholderDrawable: Int, private val itemClickListener: (Pokemon) -> Unit) : RecyclerView.Adapter<PokemonViewHolder>() {
+
+    init {
+        setHasStableIds(true)
+    }
+
+    private var pokemons = listOf<Pokemon>()
+
+    private var lastAnimatedPosition = -1
+
+    override fun getItemId(position: Int) = pokemons[position].id.toLong()
+
+    override fun getItemCount() = pokemons.size
+
+    override fun onCreateViewHolder(parent: ViewGroup, position: Int): PokemonViewHolder {
+        val view = LayoutInflater
+            .from(parent.context)
+            .inflate(R.layout.pokemon_list_item, parent, false)
+
+        return PokemonViewHolder(view, placeholderDrawable)
+    }
+
+    override fun onBindViewHolder(holder: PokemonViewHolder, position: Int) {
+        val pokemon = pokemons[position]
+
+        if (pokemon.id != 0) {
+            holder.bind(pokemon, itemClickListener)
+        } else {
+            holder.bindErrorView()
+        }
+
+        setAnimation(holder.itemView, position)
+    }
+
+    override fun onViewDetachedFromWindow(holder: PokemonViewHolder) = holder.clearAnimation()
+
+    private fun setAnimation(view: View, position: Int) {
+        if (position > lastAnimatedPosition) {
+            val animation = AnimationUtils.loadAnimation(view.context, android.R.anim.slide_in_left)
+
+            view.startAnimation(animation)
+
+            lastAnimatedPosition = position
+        }
+    }
+
+    fun update(pkmns: List<Pokemon>?) {
+        pokemons = pkmns ?: listOf()
+        notifyDataSetChanged()
+    }
+
+}
+
+class PokemonViewHolder(view: View, @DrawableRes private val placeholderDrawable: Int) : RecyclerView.ViewHolder(view) {
+
+    val binding = PokemonListItemBinding.bind(view)
+
+    val txtId: TextView = binding.txtId
+    val txtName: TextView = binding.txtName
+    val imgThumbnail: ImageView = binding.imgThumbnail
+
+    fun clearAnimation() = binding.root.clearAnimation()
+
+    fun bind(pokemon: Pokemon, listener: (Pokemon) -> Unit) {
+        txtId.text = pokemon.id.toString()
+        txtName.text = pokemon.name.capitalize()
+
+        Glide
+            .with(itemView.context)
+            .load(pokemon.sprites.front_default)
+            .placeholder(placeholderDrawable)
+            .into(imgThumbnail)
+
+        addOnClickListener(pokemon, listener)
+    }
+
+    fun bindErrorView() {
+        txtId.text = "3̴̧̨͙̝̐̀́̕ͅ6̸̮̹̳̪͛̈́͒?̶͓̗̲̲͂"
+        txtName.text = "M̶̻͓͝ì̶̫ŝ̸̩̦̈́ş̸̬̕ï̸̥͘g̷̳̞͆N̴̼͐͗ö̶̲͈́"
+        imgThumbnail.setImageResource(placeholderDrawable);
+    }
+
+    private fun addOnClickListener(pokemon: Pokemon, listener: (Pokemon) -> Unit) = itemView.setOnClickListener {
+        listener.invoke(pokemon)
+    }
+
+}
